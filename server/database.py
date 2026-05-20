@@ -78,6 +78,14 @@ async def init_db() -> None:
                         ON sessions(project, created_at DESC)
                 """))
 
+            # 修复 FTS 索引缺失的行（初始化窗口期可能漏同步）
+            async with engine.begin() as conn:
+                await conn.execute(text("""
+                    INSERT OR IGNORE INTO memories_fts(rowid, title, content, tags)
+                    SELECT rowid, title, content, coalesce(tags, '')
+                    FROM memories
+                """))
+
             logger.info("数据库初始化完成（WAL、FTS5、索引）")
             return
         except OperationalError as e:

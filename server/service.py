@@ -5,7 +5,8 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select, delete as sa_delete, func
+from sqlalchemy import select, text, delete as sa_delete, func
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache import cache
@@ -112,13 +113,25 @@ class MemoryService:
 
     @staticmethod
     async def delete(db: AsyncSession, memory_id: str) -> bool:
-        """删除记忆"""
+        """删除记忆（自动修复 FTS 索引不一致）"""
         result = await db.execute(select(Memory).where(Memory.id == memory_id))
         memory = result.scalar_one_or_none()
         if memory is None:
             return False
-        await db.delete(memory)
-        await db.commit()
+        try:
+            await db.delete(memory)
+            await db.commit()
+        except OperationalError:
+            await db.rollback()
+            # FTS 索引可能缺失该行，先补建再重试
+            await db.execute(text("""
+                INSERT OR IGNORE INTO memories_fts(rowid, title, content, tags)
+                SELECT rowid, title, content, coalesce(tags, '')
+                FROM memories WHERE id = :id
+            """), {"id": memory_id})
+            await db.commit()
+            await db.delete(memory)
+            await db.commit()
         cache.invalidate("memories:*")
         cache.invalidate("stats:*")
         cache.invalidate("projects:*")

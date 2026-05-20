@@ -129,7 +129,12 @@ async def memory_delete(
     success = await MemoryService.delete(db, memory_id)
     if not success:
         raise HTTPException(status_code=404, detail="记忆不存在")
-    return RedirectResponse(url=_prefix(request, "/"), status_code=302)
+    # 返回上一页（Referer），避免回到已删除的记忆详情页
+    referer = request.headers.get("Referer", "")
+    back_url = _prefix(request, "/")
+    if referer and f"/memory/{memory_id}" not in referer:
+        back_url = referer
+    return RedirectResponse(url=back_url, status_code=302)
 
 
 # ── 登录 ──────────────────────────────────────────────────────
