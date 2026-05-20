@@ -118,19 +118,15 @@ class MemoryService:
 
     @staticmethod
     async def delete(db: AsyncSession, memory_id: str) -> bool:
-        """删除记忆（确保 FTS 索引一致后删除）"""
+        """删除记忆（原始 SQL 绕过触发器，避免损坏的 FTS 索引干扰）"""
         result = await db.execute(select(Memory).where(Memory.id == memory_id))
         memory = result.scalar_one_or_none()
         if memory is None:
             return False
-        # 确保 FTS 索引中存在该行（修复初始化窗口期可能漏同步的数据）
-        await db.execute(text("""
-            INSERT OR IGNORE INTO memories_fts(rowid, title, content, tags)
-            SELECT rowid, title, content, coalesce(tags, '') FROM memories WHERE id = :id
-        """), {"id": memory_id})
-        await db.commit()
-        # ORM 删除触发 AFTER DELETE 触发器，正常清理 FTS
-        await db.delete(memory)
+        # 手动清理 FTS 索引
+        await db.execute(text("DELETE FROM memories_fts WHERE rowid = (SELECT rowid FROM memories WHERE id = :id)"), {"id": memory_id})
+        # 原始 SQL 删除主表记录
+        await db.execute(text("DELETE FROM memories WHERE id = :id"), {"id": memory_id})
         await db.commit()
         cache.invalidate("memories:*")
         cache.invalidate("stats:*")
