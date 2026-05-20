@@ -30,8 +30,19 @@
 - 容器时区通过 `TZ` 环境变量 + entrypoint 管理，`datetime.now().astimezone()` 跟随系统时区
 - 系统设置测试/备份按钮改用 htmx AJAX，不再刷新页面导致未保存输入丢失
 - Docker 镜像安装 git + tzdata，`GIT_PYTHON_REFRESH=quiet` 静默警告
+- 备份导出按项目分组，JSON 字段解析为可读格式
+- 备份推送锁 + push 失败检测 + 本地文件清理，Web UI 加载指示器
+- Git 连接测试改用 `git ls-remote`，错误信息人性化
+- 全站 URL 支持 `ROOT_PATH` 前缀（Nginx 反代场景），`_prefix()` 统一拼接
 
-### 涉及文件（18 个）
+### 涉及文件（19 个）
+
+`server/service.py`, `server/auth.py`, `server/database.py`, `server/main.py`,
+`server/web.py`, `server/mcp_tools.py`, `server/models.py`, `server/api_v1.py`,
+`server/backup.py`, `server/entrypoint.sh`, `Dockerfile`, `docker-compose.yml`,
+`requirements.txt`, `server/templates/base.html`, `server/templates/admin.html`,
+`server/templates/memory.html`, `server/templates/settings.html`,
+`server/templates/login.html`, `server/static/style.css`, `skills/bridge-memory/SKILL.md`
 
 `server/service.py`, `server/auth.py`, `server/database.py`, `server/main.py`,
 `server/web.py`, `server/mcp_tools.py`, `server/models.py`, `server/api_v1.py`,

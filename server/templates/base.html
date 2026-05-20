@@ -7,21 +7,21 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="{{ prefix }}/static/style.css">
 </head>
 <body>
   <nav class="container-fluid">
     <ul>
-      <li><strong><a href="/" style="text-decoration:none;color:inherit">Agent Memory Bridge</a></strong></li>
+      <li><strong><a href="{{ prefix }}/" style="text-decoration:none;color:inherit">Agent Memory Bridge</a></strong></li>
     </ul>
     <ul>
-      <li><a href="/">知识库</a></li>
+      <li><a href="{{ prefix }}/">知识库</a></li>
       {% if is_admin %}
-      <li><a href="/admin">Token 管理</a></li>
-      <li><a href="/admin/settings">系统设置</a></li>
-      <li><a href="/login">退出</a></li>
+      <li><a href="{{ prefix }}/admin">Token 管理</a></li>
+      <li><a href="{{ prefix }}/admin/settings">系统设置</a></li>
+      <li><a href="{{ prefix }}/login">退出</a></li>
       {% else %}
-      <li><a href="/login">管理登录</a></li>
+      <li><a href="{{ prefix }}/login">管理登录</a></li>
       {% endif %}
     </ul>
   </nav>

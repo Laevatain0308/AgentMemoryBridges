@@ -25,17 +25,23 @@ templates = Jinja2Templates(directory="templates")
 
 
 # ── 辅助函数 ──────────────────────────────────────────────────
+def _prefix(request: Request, path: str) -> str:
+    """拼接 root_path 前缀"""
+    return request.scope.get("root_path", "") + path
+
+
 def _require_admin(request: Request):
     session_id = request.cookies.get("admin_session")
     if not session_id or not SessionManager.is_valid(session_id):
-        raise HTTPException(status_code=302, headers={"Location": "/login"})
+        raise HTTPException(status_code=302, headers={"Location": _prefix(request, "/login")})
 
 
 def _context(request: Request, **kwargs) -> dict:
-    """构建模板上下文，包含认证状态"""
+    """构建模板上下文，包含认证状态和路由前缀"""
     session_id = request.cookies.get("admin_session")
     is_admin = SessionManager.is_valid(session_id) if session_id else False
-    return {"request": request, "is_admin": is_admin, **kwargs}
+    prefix = request.scope.get("root_path", "")
+    return {"request": request, "is_admin": is_admin, "prefix": prefix, **kwargs}
 
 
 # ── 公开页面 ──────────────────────────────────────────────────
@@ -123,7 +129,7 @@ async def memory_delete(
     success = await MemoryService.delete(db, memory_id)
     if not success:
         raise HTTPException(status_code=404, detail="记忆不存在")
-    return RedirectResponse(url="/", status_code=302)
+    return RedirectResponse(url=_prefix(request, "/"), status_code=302)
 
 
 # ── 登录 ──────────────────────────────────────────────────────
@@ -141,7 +147,7 @@ async def login_action(
 ):
     if await verify_admin_password(db, username, password):
         session_id = SessionManager.create()
-        response = RedirectResponse(url="/admin", status_code=302)
+        response = RedirectResponse(url=_prefix(request, "/admin"), status_code=302)
         # 根据反向代理头判断是否为 HTTPS 连接
         is_https = request.headers.get("X-Forwarded-Proto", "") == "https"
         response.set_cookie(
@@ -202,7 +208,7 @@ async def admin_create_token(
     # 使用闪存 Cookie 传递新 Token 信息，避免刷新重复提交
     flash_data = f"{raw_token}|||{label.strip()}|||{device_id.strip()}"
     flash_value = SessionManager.create_flash(flash_data)
-    response = RedirectResponse(url="/admin", status_code=302)
+    response = RedirectResponse(url=_prefix(request, "/admin"), status_code=302)
     response.set_cookie("token_flash", flash_value, httponly=True, samesite="lax", max_age=120)
     return response
 
@@ -215,7 +221,7 @@ async def admin_revoke_token(
 ):
     _require_admin(request)
     await revoke_token_fn(db, token_id)
-    return RedirectResponse(url="/admin", status_code=302)
+    return RedirectResponse(url=_prefix(request, "/admin"), status_code=302)
 
 
 @router.get("/admin/settings", response_class=HTMLResponse)
@@ -273,7 +279,7 @@ async def admin_save_settings(
                 scheduler.reschedule_job("git_backup", trigger="interval", hours=new_interval)
         except Exception:
             pass
-    return RedirectResponse(url="/admin/settings", status_code=302)
+    return RedirectResponse(url=_prefix(request, "/admin/settings"), status_code=302)
 
 
 @router.post("/admin/settings/test-git")
@@ -286,7 +292,7 @@ async def admin_test_git(
     result = await _test_git(db)
     color = "var(--pico-ins-color)" if result["status"] == "ok" else "var(--pico-del-color)"
     is_htmx = request.headers.get("HX-Request") == "true"
-    return HTMLResponse(f'<p style="color:{color}">Git 连接测试：<strong>{result["status"]}</strong> — {result["message"]}</p>') if is_htmx else RedirectResponse(url="/admin/settings", status_code=302)
+    return HTMLResponse(f'<p style="color:{color}">Git 连接测试：<strong>{result["status"]}</strong> — {result["message"]}</p>') if is_htmx else RedirectResponse(url=_prefix(request, "/admin/settings"), status_code=302)
 
 
 @router.post("/admin/settings/backup-now")
@@ -299,4 +305,4 @@ async def admin_backup_now(
     result = await run_backup_manual(db)
     color = "var(--pico-ins-color)" if result["status"] == "ok" else "var(--pico-del-color)"
     is_htmx = request.headers.get("HX-Request") == "true"
-    return HTMLResponse(f'<p style="color:{color}">备份结果：<strong>{result["status"]}</strong> — {result["message"]}</p>') if is_htmx else RedirectResponse(url="/admin/settings", status_code=302)
+    return HTMLResponse(f'<p style="color:{color}">备份结果：<strong>{result["status"]}</strong> — {result["message"]}</p>') if is_htmx else RedirectResponse(url=_prefix(request, "/admin/settings"), status_code=302)

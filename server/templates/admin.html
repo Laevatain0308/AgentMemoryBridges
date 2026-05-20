@@ -26,7 +26,7 @@
 
 <article>
   <header><h3>申请新 Token</h3></header>
-  <form method="post" action="/admin/tokens" class="grid">
+  <form method="post" action="{{ prefix }}/admin/tokens" class="grid">
     <div>
       <label for="device_id">设备标识</label>
       <input type="text" id="device_id" name="device_id" placeholder="如 macbook-pro、windows-desktop" required>
@@ -65,7 +65,7 @@
         <td>{% if t.revoked %}<ins>已吊销</ins>{% else %}<mark>有效</mark>{% endif %}</td>
         <td>
           {% if not t.revoked %}
-          <form method="post" action="/admin/tokens/{{ t.id }}/revoke" style="margin:0">
+          <form method="post" action="{{ prefix }}/admin/tokens/{{ t.id }}/revoke" style="margin:0">
             <button type="submit" class="outline secondary" style="padding:0.25rem 0.5rem;font-size:0.85rem">吊销</button>
           </form>
           {% endif %}

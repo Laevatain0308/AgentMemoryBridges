@@ -7,7 +7,7 @@
   {% if error %}
   <p style="color:var(--pico-del-color)">{{ error }}</p>
   {% endif %}
-  <form method="post" action="/login">
+  <form method="post" action="{{ prefix }}/login">
     <label for="username">用户名</label>
     <input type="text" id="username" name="username" value="admin" required>
     <label for="password">密码</label>

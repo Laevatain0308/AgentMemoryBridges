@@ -130,7 +130,8 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
             if session_id and SessionManager.is_valid(session_id):
                 request.state.admin = True
                 return await call_next(request)
-            return RedirectResponse(url="/login", status_code=302)
+            login_url = request.scope.get("root_path", "") + "/login"
+            return RedirectResponse(url=login_url, status_code=302)
 
         # POST /login —— 特殊处理（由路由自行验证密码）
         if path == "/login" and request.method == "POST":

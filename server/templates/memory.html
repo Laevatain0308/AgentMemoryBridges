@@ -3,7 +3,7 @@
 <article>
   <header>
     <nav>
-      <ul><li><a href="/">&larr; 返回列表</a></li></ul>
+      <ul><li><a href="{{ prefix }}/">&larr; 返回列表</a></li></ul>
     </nav>
     <hgroup>
       <h1>{{ memory.title }}</h1>
@@ -64,7 +64,7 @@
 
 {% if is_admin %}
 <article>
-  <form method="post" action="/memory/{{ memory.id }}/delete" onsubmit="return confirm('确认删除此记忆？此操作不可撤销。')">
+  <form method="post" action="{{ prefix }}/memory/{{ memory.id }}/delete" onsubmit="return confirm('确认删除此记忆？此操作不可撤销。')">
     <button type="submit" class="outline contrast" style="--pico-form-element-background-color:var(--pico-del-color)">删除此记忆</button>
   </form>
 </article>

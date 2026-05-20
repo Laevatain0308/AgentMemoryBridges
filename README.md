@@ -90,6 +90,7 @@ echo "密钥: $ENCRYPTION_KEY  # 请记录备用"
 
 # 2. 创建 .env
 cat > .env << EOF
+# ROOT_PATH=/bridges   # 取消注释并设置 Nginx 反代前缀
 TZ=Asia/Shanghai
 ADMIN_PASSWORD=<你的强密码>
 ENCRYPTION_KEY=$ENCRYPTION_KEY
@@ -124,10 +125,13 @@ location /bridges/ {
 sudo nginx -s reload
 ```
 
+> **重要**：使用 Nginx 反代时，必须在 `.env` 中设置 `ROOT_PATH=/bridges`，否则页面链接会缺少前缀导致跳转 404。
+
 ### 环境变量
 
 | 变量 | 说明 |
 |------|------|
+| `ROOT_PATH` | Nginx 反代前缀，如 `/bridges`。本地直接访问留空 |
 | `TZ` | 容器时区，默认 `Asia/Shanghai`。设为空则跟随宿主机 `/etc/localtime` |
 | `ADMIN_PASSWORD` | 管理员密码，未设置则随机生成输出到日志 |
 | `ENCRYPTION_KEY` | **强烈建议**。Fernet 密钥，用于 session cookie 签名 + git_token 加密。不设置则每次重启 session 全部失效 |

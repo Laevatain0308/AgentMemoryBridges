@@ -7,7 +7,7 @@
 
 <article>
   <header><h3>Git 备份配置</h3></header>
-  <form method="post" action="/admin/settings">
+  <form method="post" action="{{ prefix }}/admin/settings">
     <label for="git_repo_url">仓库地址</label>
     <input type="url" id="git_repo_url" name="git_repo_url"
            value="{{ config.get('git_repo_url', {}).get('value', '') }}"
@@ -58,10 +58,10 @@
 <article>
   <header><h3>备份操作</h3></header>
   <div class="grid">
-    <button class="secondary" hx-post="/admin/settings/test-git" hx-target="#action-result" hx-swap="innerHTML" hx-indicator=".backup-indicator">
+    <button class="secondary" hx-post="{{ prefix }}/admin/settings/test-git" hx-target="#action-result" hx-swap="innerHTML" hx-indicator=".backup-indicator">
       测试 Git 连接
     </button>
-    <button hx-post="/admin/settings/backup-now" hx-target="#action-result" hx-swap="innerHTML" hx-indicator=".backup-indicator">
+    <button hx-post="{{ prefix }}/admin/settings/backup-now" hx-target="#action-result" hx-swap="innerHTML" hx-indicator=".backup-indicator">
       手动备份
     </button>
   </div>

@@ -5,7 +5,7 @@
   <p>跨设备 Agent 记忆条目，由各设备 Claude Code 自动同步</p>
 </hgroup>
 
-<form method="get" action="/" class="grid">
+<form method="get" action="{{ prefix }}/" class="grid">
   <div>
     <label for="project">项目</label>
     <select id="project" name="project">
@@ -47,7 +47,7 @@
   <tbody>
     {% for m in memories %}
     <tr>
-      <td><a href="/memory/{{ m.id }}">{{ m.title }}</a></td>
+      <td><a href="{{ prefix }}/memory/{{ m.id }}">{{ m.title }}</a></td>
       <td><mark>{{ m.project }}</mark></td>
       <td><small>{{ m.category }}</small></td>
       <td><small>{{ m.source_device }}</small></td>
