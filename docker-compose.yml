@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:3004:3004"
+    volumes:
+      - ./data:/app/server/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+    mem_limit: 300m
+    restart: unless-stopped

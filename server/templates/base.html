@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Memory Bridge</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong><a href="/" style="text-decoration:none;color:inherit">Agent Memory Bridge</a></strong></li>
+    </ul>
+    <ul>
+      <li><a href="/">知识库</a></li>
+      {% if is_admin %}
+      <li><a href="/admin">Token 管理</a></li>
+      <li><a href="/admin/settings">系统设置</a></li>
+      <li><a href="/login">退出</a></li>
+      {% else %}
+      <li><a href="/login">管理登录</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <script>
+    document.querySelectorAll('.markdown-body').forEach(el => {
+      el.innerHTML = marked.parse(el.textContent);
+    });
+  </script>
+</body>
+</html>

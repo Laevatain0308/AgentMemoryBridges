@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<hgroup>
+  <h1>共享记忆知识库</h1>
+  <p>跨设备 Agent 记忆条目，由各设备 Claude Code 自动同步</p>
+</hgroup>
+
+<form method="get" action="/" class="grid">
+  <div>
+    <label for="project">项目</label>
+    <select id="project" name="project">
+      <option value="">全部项目</option>
+      {% for p in projects %}
+      <option value="{{ p }}" {% if current_project == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="category">分类</label>
+    <select id="category" name="category">
+      <option value="">全部分类</option>
+      {% for c in categories %}
+      <option value="{{ c }}" {% if current_category == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="q">搜索</label>
+    <input type="search" id="q" name="q" value="{{ current_query }}" placeholder="搜索标题、内容、标签...">
+  </div>
+  <div style="display:flex;align-items:flex-end">
+    <button type="submit">筛选</button>
+  </div>
+</form>
+
+{% if memories %}
+<table class="striped">
+  <thead>
+    <tr>
+      <th>标题</th>
+      <th>项目</th>
+      <th>分类</th>
+      <th>来源</th>
+      <th>时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in memories %}
+    <tr>
+      <td><a href="/memory/{{ m.id }}">{{ m.title }}</a></td>
+      <td><mark>{{ m.project }}</mark></td>
+      <td><small>{{ m.category }}</small></td>
+      <td><small>{{ m.source_device }}</small></td>
+      <td><small>{{ m.created_at[:16] }}</small></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<article>
+  <p style="text-align:center;color:var(--pico-muted-color)">暂无记忆条目。配置 MCP Server 后，Agent 将自动创建记忆。</p>
+</article>
+{% endif %}
+{% endblock %}

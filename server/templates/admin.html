@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<hgroup>
+  <h1>Token 管理</h1>
+  <p>创建和吊销用于 API / MCP 访问的 Bearer Token</p>
+</hgroup>
+
+{% if error %}
+<article style="border:2px solid var(--pico-del-color)">
+  <p style="color:var(--pico-del-color);margin:0">{{ error }}</p>
+</article>
+{% endif %}
+
+{% if new_token %}
+<article style="border:2px solid var(--pico-ins-color)">
+  <header>
+    <h3>新 Token 已创建</h3>
+    <p><strong>{{ new_token_device_id }}</strong>{% if new_token_label %} — {{ new_token_label }}{% endif %}</p>
+  </header>
+  <p style="word-break:break-all;font-family:monospace;background:var(--pico-code-background-color);padding:1rem;border-radius:4px">{{ new_token }}</p>
+  <footer>
+    <p style="color:var(--pico-del-color);font-weight:bold">请立即复制保存此 Token，关闭页面后将无法再次查看！</p>
+  </footer>
+</article>
+{% endif %}
+
+<article>
+  <header><h3>申请新 Token</h3></header>
+  <form method="post" action="/admin/tokens" class="grid">
+    <div>
+      <label for="device_id">设备标识</label>
+      <input type="text" id="device_id" name="device_id" placeholder="如 macbook-pro、windows-desktop" required>
+    </div>
+    <div>
+      <label for="label">标签（可选）</label>
+      <input type="text" id="label" name="label" placeholder="备注，如 VSCode、JetBrains">
+    </div>
+    <button type="submit">申请 Token</button>
+  </form>
+</article>
+
+<article>
+  <header><h3>已有 Token</h3></header>
+  {% if tokens %}
+  <table class="striped">
+    <thead>
+      <tr>
+        <th>前缀</th>
+        <th>设备标识</th>
+        <th>标签</th>
+        <th>创建时间</th>
+        <th>最后使用</th>
+        <th>状态</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tokens %}
+      <tr>
+        <td><code>{{ t.token_prefix }}</code></td>
+        <td><mark>{{ t.device_id }}</mark></td>
+        <td>{{ t.label }}</td>
+        <td><small>{{ t.created_at[:16] }}</small></td>
+        <td><small>{{ t.last_used_at or '从未使用' }}</small></td>
+        <td>{% if t.revoked %}<ins>已吊销</ins>{% else %}<mark>有效</mark>{% endif %}</td>
+        <td>
+          {% if not t.revoked %}
+          <form method="post" action="/admin/tokens/{{ t.id }}/revoke" style="margin:0">
+            <button type="submit" class="outline secondary" style="padding:0.25rem 0.5rem;font-size:0.85rem">吊销</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--pico-muted-color)">暂无 Token</p>
+  {% endif %}
+</article>
+{% endblock %}

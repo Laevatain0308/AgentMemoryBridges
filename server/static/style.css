@@ -1,0 +1,147 @@
+/* Agent Memory Bridge —— Pico.css 定制 */
+:root {
+  --pico-font-size: 95%;
+}
+
+nav.container-fluid {
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+main.container {
+  margin-top: 1.5rem;
+}
+
+/* ── Markdown 渲染 (GitHub 风格) ─────────────────────────── */
+
+.markdown-body {
+  line-height: 1.7;
+  font-size: 1rem;
+  color: #24292f;
+  word-wrap: break-word;
+}
+
+/* 标题层级 */
+.markdown-body h1, .markdown-body h2, .markdown-body h3,
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.markdown-body h1 { font-size: 1.8em; border-bottom: 1px solid #d8dee4; padding-bottom: 0.4em; }
+.markdown-body h2 { font-size: 1.4em; border-bottom: 1px solid #d8dee4; padding-bottom: 0.3em; }
+.markdown-body h3 { font-size: 1.15em; }
+.markdown-body h4 { font-size: 1em; }
+
+/* 段落与链接 */
+.markdown-body p { margin-bottom: 1rem; }
+.markdown-body a { color: #0969da; text-decoration: none; }
+.markdown-body a:hover { text-decoration: underline; }
+
+/* 行内代码 */
+.markdown-body code {
+  background: #afb8c133;
+  padding: 0.2em 0.5em;
+  border-radius: 6px;
+  font-size: 0.875em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: #24292f;
+}
+
+/* 代码块 */
+.markdown-body pre {
+  background: #f6f8fa;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+  border: 1px solid #d8dee4;
+}
+.markdown-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875em;
+  color: #1f2328;
+}
+
+/* 列表 */
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.5em;
+  margin-bottom: 1rem;
+}
+.markdown-body li { margin-bottom: 0.25rem; }
+.markdown-body li > ul, .markdown-body li > ol { margin-bottom: 0; }
+
+/* 引用块 */
+.markdown-body blockquote {
+  border-left: 4px solid #0969da;
+  padding: 0.5rem 1rem;
+  margin: 0 0 1rem 0;
+  color: #57606a;
+  background: #f6f8fa;
+  border-radius: 0 6px 6px 0;
+}
+
+/* 表格 */
+.markdown-body table {
+  width: 100%;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+  border: 1px solid #d8dee4;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.markdown-body th, .markdown-body td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d8dee4;
+  text-align: left;
+}
+.markdown-body th {
+  background: #f6f8fa;
+  font-weight: 600;
+}
+.markdown-body tr:nth-child(even) { background: #f6f8fa55; }
+.markdown-body tr:hover { background: #f0f4f8; }
+
+/* 图片 */
+.markdown-body img { max-width: 100%; }
+
+/* 水平线 */
+.markdown-body hr {
+  border: 0;
+  height: 1px;
+  background: #d8dee4;
+  margin: 1.5rem 0;
+}
+
+/* 任务列表 */
+.markdown-body input[type="checkbox"] {
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
+
+/* 紧凑间距的文章容器 */
+.markdown-body > *:first-child { margin-top: 0 !important; }
+.markdown-body > *:last-child { margin-bottom: 0 !important; }
+
+/* ── 其他 ────────────────────────────────────────────────── */
+
+table.striped td, table.striped th {
+  vertical-align: middle;
+}
+
+/* htmx 加载指示器 */
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator { display: block; }
+.htmx-request.htmx-indicator { display: block; }
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .markdown-body { font-size: 0.95rem; }
+}

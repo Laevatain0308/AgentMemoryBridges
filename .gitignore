@@ -1,0 +1,35 @@
+# ── macOS ─────────────────────────────────────────────────
+.DS_Store
+._*
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# ── IDE ──────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+.idea/
+*.vsix
+
+# ── Project Data ─────────────────────────────────────────
+data/
+backup/
+*.log
+
+# ── Docker ───────────────────────────────────────────────
+# (Dockerfile and docker-compose.yml are tracked)

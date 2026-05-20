@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<article>
+  <header>
+    <nav>
+      <ul><li><a href="/">&larr; 返回列表</a></li></ul>
+    </nav>
+    <hgroup>
+      <h1>{{ memory.title }}</h1>
+      <p>
+        <mark>{{ memory.project }}</mark> &middot;
+        <small>{{ memory.category }}</small> &middot;
+        <small>{{ memory.source_device }}</small> &middot;
+        <small>{{ memory.status }}</small>
+      </p>
+    </hgroup>
+  </header>
+
+  <div class="markdown-body">{{ memory.content }}</div>
+
+  {% if memory.tags %}
+  <footer>
+    <div>
+      {% for tag in memory.tags %}
+      <kbd>{{ tag }}</kbd>
+      {% endfor %}
+    </div>
+  </footer>
+  {% endif %}
+</article>
+
+{% if memory.related_files %}
+<article>
+  <h3>关联文件</h3>
+  <ul>
+    {% for f in memory.related_files %}
+    <li><code>{{ f }}</code></li>
+    {% endfor %}
+  </ul>
+</article>
+{% endif %}
+
+{% if memory.related_urls %}
+<article>
+  <h3>关联链接</h3>
+  <ul>
+    {% for u in memory.related_urls %}
+    <li><a href="{{ u }}" target="_blank">{{ u }}</a></li>
+    {% endfor %}
+  </ul>
+</article>
+{% endif %}
+
+<article>
+  <h3>元数据</h3>
+  <table>
+    <tr><th>ID</th><td><code>{{ memory.id }}</code></td></tr>
+    <tr><th>创建时间</th><td>{{ memory.created_at }}</td></tr>
+    <tr><th>更新时间</th><td>{{ memory.updated_at }}</td></tr>
+    <tr><th>来源设备</th><td>{{ memory.source_device }}</td></tr>
+    <tr><th>状态</th><td>{{ memory.status }}</td></tr>
+  </table>
+</article>
+
+{% if is_admin %}
+<article>
+  <form method="post" action="/memory/{{ memory.id }}/delete" onsubmit="return confirm('确认删除此记忆？此操作不可撤销。')">
+    <button type="submit" class="outline contrast" style="--pico-form-element-background-color:var(--pico-del-color)">删除此记忆</button>
+  </form>
+</article>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<hgroup>
+  <h1>系统设置</h1>
+  <p>Git 备份仓库配置</p>
+</hgroup>
+
+<article>
+  <header><h3>Git 备份配置</h3></header>
+  <form method="post" action="/admin/settings">
+    <label for="git_repo_url">仓库地址</label>
+    <input type="url" id="git_repo_url" name="git_repo_url"
+           value="{{ config.get('git_repo_url', {}).get('value', '') }}"
+           placeholder="https://github.com/user/repo.git">
+
+    <div class="grid">
+      <div>
+        <label for="git_repo_branch">分支</label>
+        <input type="text" id="git_repo_branch" name="git_repo_branch"
+               value="{{ config.get('git_repo_branch', {}).get('value', 'main') }}">
+      </div>
+      <div>
+        <label for="backup_interval_h">备份间隔（小时）</label>
+        <input type="number" id="backup_interval_h" name="backup_interval_h"
+               value="{{ config.get('backup_interval_h', {}).get('value', '6') }}" min="1" max="168">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label for="git_user_name">提交用户名</label>
+        <input type="text" id="git_user_name" name="git_user_name"
+               value="{{ config.get('git_user_name', {}).get('value', '') }}">
+      </div>
+      <div>
+        <label for="git_user_email">提交邮箱</label>
+        <input type="email" id="git_user_email" name="git_user_email"
+               value="{{ config.get('git_user_email', {}).get('value', '') }}">
+      </div>
+    </div>
+
+    <label for="git_token">GitHub Personal Access Token</label>
+    <input type="password" id="git_token" name="git_token"
+           value="{{ config.get('git_token', {}).get('value', '') }}"
+           placeholder="ghp_...（留空则不变）">
+
+    <label>
+      <input type="hidden" name="backup_enabled" value="false">
+      <input type="checkbox" name="backup_enabled" value="true"
+             {% if config.get('backup_enabled', {}).get('value', 'true') == 'true' %}checked{% endif %}>
+      启用自动备份
+    </label>
+
+    <button type="submit">保存配置</button>
+  </form>
+</article>
+
+<article>
+  <header><h3>备份操作</h3></header>
+  <div class="grid">
+    <button class="secondary" hx-post="/admin/settings/test-git" hx-target="#action-result" hx-swap="innerHTML" hx-indicator=".backup-indicator">
+      测试 Git 连接
+    </button>
+    <button hx-post="/admin/settings/backup-now" hx-target="#action-result" hx-swap="innerHTML" hx-indicator=".backup-indicator">
+      手动备份
+    </button>
+  </div>
+  <div class="backup-indicator htmx-indicator" style="margin-top:1rem;color:var(--pico-muted-color)">⏳ 正在操作，请稍候...</div>
+  <div id="action-result" style="margin-top:0.5rem"></div>
+  {% if config.get('last_backup_at', {}).get('value') %}
+  <footer style="margin-top:1rem">
+    <p>
+      最近备份：{{ config.get('last_backup_at', {}).get('value', '') }} &mdash;
+      状态：{% if config.get('last_backup_status', {}).get('value') == 'ok' %}<ins>成功</ins>{% else %}<del>失败</del>{% endif %}
+    </p>
+  </footer>
+  {% endif %}
+</article>
+{% endblock %}
