@@ -33,7 +33,7 @@
 - 备份导出按项目分组，JSON 字段解析为可读格式
 - 备份推送锁 + push 失败检测 + 本地文件清理，Web UI 加载指示器
 - Git 连接测试改用 `git ls-remote`，错误信息人性化
-- 全站 URL 支持 `ROOT_PATH` 前缀（Nginx 反代场景），`_prefix()` 统一拼接
+- 全站 URL 支持 `ROOT_PATH` 前缀，`_prefix()` 统一拼接，Nginx 不再需要 `proxy_redirect`
 
 ### 涉及文件（19 个）
 

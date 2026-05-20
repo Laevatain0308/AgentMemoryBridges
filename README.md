@@ -115,7 +115,7 @@ location /bridges/ {
     proxy_pass http://127.0.0.1:3004/;
     proxy_buffering off;
     proxy_read_timeout 24h;
-    proxy_redirect / /bridges/;
+    # proxy_redirect 已移除：后端通过 ROOT_PATH 自行处理前缀
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
 }
