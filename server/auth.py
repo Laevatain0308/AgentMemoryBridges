@@ -112,7 +112,7 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        path = request.url.path
+        path = request.scope.get("path", request.url.path)
 
         # 公开路径直接放行
         if path in PUBLIC_PATHS:
