@@ -112,7 +112,10 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        path = request.scope.get("path", request.url.path)
+        path = request.url.path
+        root_path = request.scope.get("root_path", "")
+        if root_path and path.startswith(root_path):
+            path = path[len(root_path):]  # 剥离 Nginx/uvicorn 前缀
 
         # 公开路径直接放行
         if path in PUBLIC_PATHS:
