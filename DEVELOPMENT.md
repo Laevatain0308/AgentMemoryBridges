@@ -1,5 +1,33 @@
 # Agent Memory Bridge 开发记录
 
+## v1.1.1 — 2026-05-21：修复删除记忆 FTS5 触发器 SQL logic error
+
+### Bug 修复
+
+| # | 问题 | 根因 | 修复 |
+|---|------|------|------|
+| 10 | 删除记忆报 `SQL logic error`（五次修复未解决） | FTS5 的 `'delete'` INSERT 命令在 SQLite 3.51.0 中不工作：`INSERT INTO fts(fts, rowid, ...) VALUES('delete', ...)` 一律报 SQL logic error | 触发器改用 `DELETE FROM memories_fts WHERE rowid = old.rowid`（天然幂等） |
+
+### 根因分析过程
+
+五次提交（`b079e4f` ~ `172d3a2`）尝试了 try/except 重试、主动 INSERT OR IGNORE 预同步、触发器 INSERT OR REPLACE、绕过触发器手动清理等方案，全部失败。根本原因是所有方案都依赖 FTS5 的 `'delete'` INSERT 命令来清理 FTS 索引，但该命令在当前 SQLite 3.51.0 版本中**根本不生效**。
+
+通过独立脚本验证确认：`INSERT INTO memories_fts(memories_fts, rowid, ...) VALUES('delete', ...)` 无论是 `INSERT` 还是 `INSERT OR REPLACE`，无论是否带 `content_rowid`，均报 `SQL logic error`。而 `DELETE FROM memories_fts WHERE rowid = ?` 工作正常。
+
+### 架构改进
+
+- DELETE 触发器：`DELETE FROM memories_fts WHERE rowid = old.rowid`（替代 `'delete'` INSERT 命令）
+- UPDATE 触发器：`DELETE FROM ... WHERE rowid = old.rowid; INSERT INTO ... VALUES (new.rowid, ...)`
+- INSERT 触发器：保持不变
+- 服务层简化：移除 delete() 和 update() 中的 FTS 预同步代码（`INSERT OR IGNORE`），因 `DELETE FROM WHERE rowid` 天然幂等
+- 移除重复日志行
+
+### 涉及文件（2 个）
+
+`server/database.py`, `server/service.py`
+
+---
+
 ## v1.1 — 2026-05-21：MCP 服务稳定性与 Web UI 完善
 
 ### Bug 修复
@@ -43,13 +71,6 @@
 `requirements.txt`, `server/templates/base.html`, `server/templates/admin.html`,
 `server/templates/memory.html`, `server/templates/settings.html`,
 `server/templates/login.html`, `server/static/style.css`, `skills/bridge-memory/SKILL.md`
-
-`server/service.py`, `server/auth.py`, `server/database.py`, `server/main.py`,
-`server/web.py`, `server/mcp_tools.py`, `server/models.py`, `server/api_v1.py`,
-`server/backup.py`, `server/entrypoint.sh`, `Dockerfile`, `docker-compose.yml`,
-`requirements.txt`, `server/templates/base.html`, `server/templates/admin.html`,
-`server/templates/memory.html`, `server/templates/settings.html`,
-`server/static/style.css`, `skills/bridge-memory/SKILL.md`
 
 ### 已知限制
 
