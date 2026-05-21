@@ -56,17 +56,17 @@ async def init_db() -> None:
                         tokenize='unicode61'
                     )
                 """))
-                # 先删旧触发器再重建（确保 OR REPLACE 修复生效）
+                # 先删旧触发器再重建（确保修复生效）
                 for op in ("INSERT", "DELETE", "UPDATE"):
                     await conn.execute(text(f"DROP TRIGGER IF EXISTS tr_memories_fts_{op.lower()}"))
                 for op, timing in [("INSERT", "AFTER"), ("DELETE", "AFTER"), ("UPDATE", "AFTER")]:
                     if op == "INSERT":
-                        body = "INSERT OR REPLACE INTO memories_fts(rowid, title, content, tags) VALUES (new.rowid, new.title, new.content, new.tags)"
+                        body = "INSERT INTO memories_fts(rowid, title, content, tags) VALUES (new.rowid, new.title, new.content, new.tags)"
                     elif op == "DELETE":
-                        body = "INSERT OR REPLACE INTO memories_fts(memories_fts, rowid, title, content, tags) VALUES ('delete', old.rowid, old.title, old.content, old.tags)"
+                        body = "DELETE FROM memories_fts WHERE rowid = old.rowid"
                     else:
-                        body = ("INSERT OR REPLACE INTO memories_fts(memories_fts, rowid, title, content, tags) VALUES ('delete', old.rowid, old.title, old.content, old.tags);"
-                                "INSERT OR REPLACE INTO memories_fts(rowid, title, content, tags) VALUES (new.rowid, new.title, new.content, new.tags)")
+                        body = ("DELETE FROM memories_fts WHERE rowid = old.rowid;"
+                                "INSERT INTO memories_fts(rowid, title, content, tags) VALUES (new.rowid, new.title, new.content, new.tags)")
                     sql = f"CREATE TRIGGER tr_memories_fts_{op.lower()} {timing} {op} ON memories BEGIN {body}; END"
                     await conn.execute(text(sql))
 

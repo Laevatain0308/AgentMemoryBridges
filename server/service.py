@@ -93,17 +93,11 @@ class MemoryService:
 
     @staticmethod
     async def update(db: AsyncSession, memory_id: str, data: dict) -> Optional[Memory]:
-        """部分更新记忆（确保 FTS 索引一致）"""
+        """部分更新记忆（FTS 索引由触发器自动同步）"""
         result = await db.execute(select(Memory).where(Memory.id == memory_id))
         memory = result.scalar_one_or_none()
         if memory is None:
             return None
-        # 确保 FTS 索引中存在该行，防止 UPDATE 触发器 'delete' 命令失败
-        await db.execute(text("""
-            INSERT OR IGNORE INTO memories_fts(rowid, title, content, tags)
-            SELECT rowid, title, content, coalesce(tags, '') FROM memories WHERE id = :id
-        """), {"id": memory_id})
-        await db.commit()
         for field in ("content", "status", "title", "category", "project"):
             if field in data and data[field] is not None:
                 setattr(memory, field, data[field])
@@ -118,23 +112,17 @@ class MemoryService:
 
     @staticmethod
     async def delete(db: AsyncSession, memory_id: str) -> bool:
-        """删除记忆（先确保 FTS 行存在，再删主表让触发器清理）"""
+        """删除记忆（FTS 索引由触发器自动清理）"""
         result = await db.execute(select(Memory).where(Memory.id == memory_id))
         memory = result.scalar_one_or_none()
         if memory is None:
             return False
-        # 确保 FTS 索引中存在该行，否则 AFTER DELETE 触发器的 'delete' 命令会报错
-        await db.execute(text("""
-            INSERT OR IGNORE INTO memories_fts(rowid, title, content, tags)
-            SELECT rowid, title, content, coalesce(tags, '') FROM memories WHERE id = :id
-        """), {"id": memory_id})
-        # 删除主表（同一事务内触发器可见上一步的 INSERT，正常清理 FTS）
+        # 删除主表，AFTER DELETE 触发器自动清理 FTS 索引
         await db.execute(text("DELETE FROM memories WHERE id = :id"), {"id": memory_id})
         await db.commit()
         cache.invalidate("memories:*")
         cache.invalidate("stats:*")
         cache.invalidate("projects:*")
-        logger.info("记忆已删除: id=%s", memory_id)
         logger.info("记忆已删除: id=%s", memory_id)
         return True
 
